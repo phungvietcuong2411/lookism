@@ -54,6 +54,7 @@ const chap596 = {
         { src: 'https://i.postimg.cc/wBpmK6XQ/photo-48-2026-02-26-21-09-27.jpg', alt: 'Trang 48' },
         { src: 'https://i.postimg.cc/fbN94wcK/photo-49-2026-02-26-21-09-27.jpg', alt: 'Trang 49' },
         { src: 'https://i.postimg.cc/N0cHhg6p/photo-50-2026-02-26-21-09-27.jpg', alt: 'Trang 50' },
+        { src: 'https://res.cloudinary.com/dhjs4exbp/image/upload/v1772117377/173d9189-537c-44d3-8f57-2e81d84246a8.png', alt: '' },
         { src: 'https://res.cloudinary.com/dhjs4exbp/image/upload/v1772116764/f4cb321a-61ed-4ce7-99c2-1f4d82f49c5a.png', alt: '36' },
         { src: 'https://i.postimg.cc/YSHWcp6X/photo-51-2026-02-26-21-09-27.jpg', alt: 'Trang 51' },
         { src: 'https://res.cloudinary.com/dhjs4exbp/image/upload/v1772116648/b61596dc-e515-4692-8492-9b4425c7fad2.png', alt: 'Trang 51' },
