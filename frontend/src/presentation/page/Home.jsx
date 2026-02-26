@@ -105,7 +105,7 @@ const Home = () => {
                                 {/* Action buttons */}
                                 <div className="flex flex-wrap gap-3">
                                     <button
-                                        onClick={() => navigate('/chapter/1')}
+                                        onClick={() => navigate(`/chapter/${chapters[0].id}`)}
                                         className="px-6 py-3 bg-[#1754cf] text-white font-bold uppercase tracking-widest text-xs hover:bg-blue-700 transition-colors"
                                     >
                                         Đọc từ đầu

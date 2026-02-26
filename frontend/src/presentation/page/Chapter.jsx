@@ -6,92 +6,86 @@ import { chapters, getChapterById, saveProgress } from '../../data/index';
    Reusable overlay panel
 ───────────────────────────────────────────── */
 const OverlayPanel = ({ title, onClose, children }) => (
-  <div style={{
-    position: 'fixed', inset: 0, zIndex: 100,
-    background: 'rgba(0,0,0,0.88)',
-    display: 'flex', flexDirection: 'column',
-  }}>
-    <div style={{
-      display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-      padding: '14px 20px', borderBottom: '1px solid rgba(255,255,255,0.13)',
-      color: '#fff', flexShrink: 0,
-    }}>
-      <span style={{ fontWeight: 700, fontSize: 15, letterSpacing: 0.3 }}>{title}</span>
-      <button onClick={onClose} style={{
-        background: 'rgba(255,255,255,0.12)', border: 'none', borderRadius: '50%',
-        width: 36, height: 36, color: '#fff', cursor: 'pointer',
-        fontSize: 20, display: 'flex', alignItems: 'center', justifyContent: 'center',
-      }}>×</button>
+  <div className="fixed inset-0 z-100 bg-black/90 flex flex-col">
+    <div className="flex justify-between items-center px-5 py-3.5 border-b border-white/10 text-white shrink-0">
+      <span className="font-bold text-[15px] tracking-[0.3px]">{title}</span>
+      <button
+        onClick={onClose}
+        className="bg-white/10 border-none rounded-full w-9 h-9 text-white cursor-pointer text-2xl flex items-center justify-center hover:bg-white/20 transition-colors"
+      >
+        ×
+      </button>
     </div>
     {children}
   </div>
 );
 
 /* ─────────────────────────────────────────────
-   FAB Item
+   FAB Item  ←←← PHẦN ĐÃ SỬA
 ───────────────────────────────────────────── */
 const FabItem = ({ label, icon, visible, delay, onClick, color }) => (
-  <div style={{
-    display: 'flex', alignItems: 'center', gap: 10,
-    opacity: visible ? 1 : 0,
-    transform: visible ? 'translateY(0) scale(1)' : 'translateY(12px) scale(0.85)',
-    transition: `opacity 0.22s ${delay}ms, transform 0.22s ${delay}ms`,
-    pointerEvents: visible ? 'auto' : 'none',
-    flexDirection: 'row-reverse',
-  }}>
-    <button onClick={onClick} title={label} style={{
-      width: 44, height: 44, borderRadius: '50%', background: color,
-      border: 'none', cursor: 'pointer', color: '#fff', fontSize: 18,
-      display: 'flex', alignItems: 'center', justifyContent: 'center',
-      boxShadow: '0 2px 10px rgba(0,0,0,0.3)', flexShrink: 0,
-    }}>{icon}</button>
-    <span style={{
-      background: 'rgba(0,0,0,0.75)', color: '#fff', borderRadius: 6,
-      padding: '4px 10px', fontSize: 12, fontWeight: 600,
-      whiteSpace: 'nowrap', backdropFilter: 'blur(4px)',
-    }}>{label}</span>
+  <div
+    className={`flex items-center gap-2.5 flex-row-reverse transition-all duration-200
+      ${visible ? 'pointer-events-auto' : 'pointer-events-none'}
+      ${visible
+        ? 'opacity-100 translate-y-0 scale-100'
+        : 'opacity-0 translate-y-3 scale-95'
+      }`}
+    style={{ transitionDelay: `${delay}ms` }}
+  >
+    <button
+      onClick={onClick}
+      title={label}
+      className={`w-11 h-11 rounded-full border-none cursor-pointer text-white text-xl flex items-center justify-center shadow-[0_2px_10px_rgba(0,0,0,0.3)] shrink-0 transition-transform active:scale-95`}
+      style={{ backgroundColor: color }}
+    >
+      {icon}
+    </button>
+    <span className="bg-black/75 text-white text-xs font-semibold px-3 py-1 rounded-md whitespace-nowrap backdrop-blur-sm">
+      {label}
+    </span>
   </div>
 );
 
 /* ─────────────────────────────────────────────
    FAB + all panels
 ───────────────────────────────────────────── */
+/* ─────────────────────────────────────────────
+   FAB + all panels  ←←← ĐÃ SỬA
+───────────────────────────────────────────── */
 const FAB = ({ onHome, onPrev, onNext, hasPrev, hasNext, pages, currentPage, onJumpPage, currentChapId, onJumpChapter }) => {
   const [open, setOpen] = useState(false);
-  const [panel, setPanel] = useState(null); // null | 'pages' | 'chapters'
+  const [panel, setPanel] = useState(null);
 
   const toggle = () => {
     setOpen((v) => !v);
     setPanel(null);
   };
 
-  const openPanel = (name) => { setPanel(name); setOpen(false); };
+  const openPanel = (name) => {
+    setPanel(name);
+    setOpen(false);
+  };
   const closePanel = () => setPanel(null);
 
   /* ── Page list panel ── */
   const PageListPanel = () => (
     <OverlayPanel title="Danh sách trang" onClose={closePanel}>
-      <div style={{
-        flex: 1, overflowY: 'auto', padding: '16px',
-        display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(100px, 1fr))',
-        gap: '12px', alignContent: 'start',
-      }}>
+      <div className="flex-1 overflow-y-auto p-4 flex flex-wrap justify-center gap-3 content-start">
         {pages.map((page, idx) => (
-          <button key={idx} onClick={() => { onJumpPage(idx); closePanel(); }} style={{
-            background: 'none',
-            border: currentPage === idx ? '2px solid #1754cf' : '2px solid rgba(255,255,255,0.15)',
-            borderRadius: 8, overflow: 'hidden', cursor: 'pointer', padding: 0,
-            position: 'relative', transition: 'border-color 0.2s',
-          }}>
-            <img src={page.src} alt={page.alt} style={{
-              width: '100%', aspectRatio: '2/3', objectFit: 'cover', display: 'block',
-            }} />
-            <div style={{
-              position: 'absolute', bottom: 0, left: 0, right: 0,
-              background: currentPage === idx ? '#1754cf' : 'rgba(0,0,0,0.65)',
-              color: '#fff', fontSize: 11, fontWeight: 700,
-              textAlign: 'center', padding: '3px 0',
-            }}>{idx + 1}</div>
+          <button
+            key={idx}
+            onClick={() => { onJumpPage(idx); closePanel(); }}
+            className={`w-40 h-60 bg-transparent border-2 rounded-xl overflow-hidden cursor-pointer p-0 relative transition-all shrink-0 ${currentPage === idx
+              ? 'border-[#1754cf] shadow-lg'
+              : 'border-white/15 hover:border-white/30'
+              }`}
+          >
+            <img src={page.src} alt={page.alt} className="w-full h-full object-cover block" />
+            <div className={`absolute bottom-0 left-0 right-0 text-white text-[11px] font-bold text-center py-0.5 transition-colors ${currentPage === idx ? 'bg-[#1754cf]' : 'bg-black/65'
+              }`}>
+              {idx + 1}
+            </div>
           </button>
         ))}
       </div>
@@ -101,39 +95,28 @@ const FAB = ({ onHome, onPrev, onNext, hasPrev, hasNext, pages, currentPage, onJ
   /* ── Chapter list panel ── */
   const ChapterListPanel = () => (
     <OverlayPanel title="Danh sách chương" onClose={closePanel}>
-      <div style={{ flex: 1, overflowY: 'auto' }}>
+      <div className="flex-1 overflow-y-auto">
         {chapters.map((chap) => {
           const isCurrent = chap.id === currentChapId;
           return (
             <button
               key={chap.id}
               onClick={() => { onJumpChapter(chap.id); closePanel(); }}
-              style={{
-                width: '100%', background: isCurrent ? 'rgba(23,84,207,0.25)' : 'transparent',
-                border: 'none', borderBottom: '1px solid rgba(255,255,255,0.07)',
-                color: '#fff', cursor: 'pointer', padding: '14px 20px',
-                display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-                textAlign: 'left', transition: 'background 0.15s',
-              }}
-              onMouseEnter={e => { if (!isCurrent) e.currentTarget.style.background = 'rgba(255,255,255,0.07)'; }}
-              onMouseLeave={e => { if (!isCurrent) e.currentTarget.style.background = 'transparent'; }}
+              className={`w-full border-none border-b border-white/10 text-white cursor-pointer px-5 py-3.5 flex items-center justify-between text-left transition-colors ${isCurrent ? 'bg-[#1754cf]/25' : 'hover:bg-white/10'
+                }`}
             >
               <div>
-                <div style={{
-                  fontWeight: isCurrent ? 700 : 500,
-                  fontSize: 14,
-                  color: isCurrent ? '#6a9fff' : '#fff',
-                }}>{chap.title}</div>
-                <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.45)', marginTop: 3 }}>
+                <div className={`font-${isCurrent ? 'bold' : 'medium'} text-sm ${isCurrent ? 'text-[#6a9fff]' : 'text-white'}`}>
+                  {chap.title}
+                </div>
+                <div className="text-[11px] text-white/45 mt-1">
                   {chap.arc.name} · {chap.pages.length} trang · {chap.updatedAt}
                 </div>
               </div>
               {isCurrent && (
-                <span style={{
-                  fontSize: 10, background: '#1754cf', color: '#fff',
-                  padding: '2px 7px', borderRadius: 3, fontWeight: 700,
-                  letterSpacing: 0.5, flexShrink: 0, marginLeft: 12,
-                }}>ĐANG ĐỌC</span>
+                <span className="text-[10px] bg-[#1754cf] text-white px-2 py-0.5 rounded font-bold tracking-[0.5px] shrink-0 ml-3">
+                  ĐANG ĐỌC
+                </span>
               )}
             </button>
           );
@@ -147,42 +130,36 @@ const FAB = ({ onHome, onPrev, onNext, hasPrev, hasNext, pages, currentPage, onJ
       {panel === 'pages' && <PageListPanel />}
       {panel === 'chapters' && <ChapterListPanel />}
 
-      {/* FAB + radial menu */}
-      <div style={{ position: 'fixed', bottom: 28, right: 24, zIndex: 200 }}>
-        <div style={{
-          display: 'flex', flexDirection: 'column', alignItems: 'center',
-          gap: 10, marginBottom: 10,
-          pointerEvents: open ? 'auto' : 'none',
-        }}>
-          <FabItem label="Danh sách chương" icon="📋" visible={open} delay={0}
-            onClick={() => openPanel('chapters')} color="#0e7490" />
-          <FabItem label="Danh sách ảnh" icon="🖼" visible={open} delay={50}
-            onClick={() => openPanel('pages')} color="#6c3de8" />
-          <FabItem label="Chương sau" icon="▶" visible={open && hasNext} delay={100}
-            onClick={() => { onNext(); setOpen(false); }} color="#1754cf" />
-          <FabItem label="Chương trước" icon="◀" visible={open && hasPrev} delay={150}
-            onClick={() => { onPrev(); setOpen(false); }} color="#1754cf" />
-          <FabItem label="Trang chủ" icon="🏠" visible={open} delay={200}
-            onClick={() => { onHome(); setOpen(false); }} color="#0a7c59" />
+      {/* FAB Container - CHỈ CÒN 1 NÚT KHI ĐÓNG */}
+      <div className="fixed bottom-7 right-6 z-200">
+
+        {/* Menu items - absolute, không chiếm chỗ khi đóng */}
+        <div className={`absolute bottom-16 right-0 flex flex-col items-end gap-3 transition-all duration-300 origin-bottom-right
+          ${open
+            ? 'opacity-100 translate-y-0 scale-100 pointer-events-auto'
+            : 'opacity-0 translate-y-8 scale-95 pointer-events-none'
+          }`}
+        >
+          <FabItem label="Danh sách chương" icon="📋" visible={open} delay={0} onClick={() => openPanel('chapters')} color="#0e7490" />
+          <FabItem label="Danh sách ảnh" icon="🖼" visible={open} delay={50} onClick={() => openPanel('pages')} color="#6c3de8" />
+          <FabItem label="Chương sau" icon="▶" visible={open && hasNext} delay={100} onClick={() => { onNext(); setOpen(false); }} color="#1754cf" />
+          <FabItem label="Chương trước" icon="◀" visible={open && hasPrev} delay={150} onClick={() => { onPrev(); setOpen(false); }} color="#1754cf" />
+          <FabItem label="Trang chủ" icon="🏠" visible={open} delay={200} onClick={() => { onHome(); setOpen(false); }} color="#0a7c59" />
         </div>
 
         {/* Main FAB button */}
-        <button onClick={toggle} style={{
-          width: 56, height: 56, borderRadius: '50%',
-          background: open ? '#1e293b' : '#1754cf',
-          border: 'none', cursor: 'pointer', color: '#fff', fontSize: 22,
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-          boxShadow: '0 4px 20px rgba(0,0,0,0.35)',
-          transition: 'background 0.25s, transform 0.25s',
-          transform: open ? 'rotate(45deg)' : 'rotate(0deg)',
-        }} title="Menu">
+        <button
+          onClick={toggle}
+          className={`w-14 h-14 rounded-full border-none cursor-pointer text-white text-[22px] flex items-center justify-center shadow-2xl transition-all duration-300 ${open ? 'bg-[#1e293b] rotate-45' : 'bg-[#1754cf]'
+            }`}
+          title="Menu"
+        >
           {open ? '✕' : '☰'}
         </button>
       </div>
     </>
   );
 };
-
 /* ─────────────────────────────────────────────
    Main Chapter page
 ───────────────────────────────────────────── */
@@ -191,7 +168,15 @@ const Chapter = () => {
   const navigate = useNavigate();
 
   const chapId = chapterId ? Number(chapterId) : 1;
-  const chapter = getChapterById(chapId) || chapters[0];
+  const chapter = getChapterById(chapId);
+
+  if (!chapter) {
+    return (
+      <div className="text-white p-10">
+        Chapter không tồn tại.
+      </div>
+    );
+  }
   const pages = chapter.pages;
 
   const [currentPage, setCurrentPage] = useState(0);
@@ -202,8 +187,10 @@ const Chapter = () => {
     saveProgress(chapId);
   }, [chapId]);
 
-  const hasPrev = chapId > 1;
-  const hasNext = chapId < chapters.length;
+  const currentIndex = chapters.findIndex(c => c.id === chapId);
+
+  const hasPrev = currentIndex > 0;
+  const hasNext = currentIndex < chapters.length - 1;
 
   const goNext = useCallback(() => {
     if (currentPage < pages.length - 1) setCurrentPage((p) => p + 1);
@@ -249,75 +236,75 @@ const Chapter = () => {
     return () => window.removeEventListener('keydown', handler);
   }, [goNext, goPrev]);
 
-  const page = pages[currentPage];
+  const page = pages[currentPage] || pages[0];
 
   return (
-    <div style={{
-      background: '#111', minHeight: '100dvh', height: '100dvh',
-      display: 'flex', flexDirection: 'column',
-      userSelect: 'none', overflow: 'hidden',
-    }}
+    <div
+      className="bg-[#111] min-h-dvh h-dvh flex flex-col select-none overflow-hidden"
       onTouchStart={handleTouchStart}
       onTouchEnd={handleTouchEnd}
     >
       {/* Top info bar */}
-      <div style={{
-        position: 'fixed', top: 0, left: 0, right: 0, zIndex: 50,
-        background: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(8px)',
-        padding: '8px 16px', display: 'flex', alignItems: 'center',
-        justifyContent: 'space-between', color: '#fff', fontSize: 13,
-        fontFamily: 'system-ui, sans-serif',
-      }}>
-        <span style={{ fontWeight: 700, letterSpacing: 0.3 }}>{chapter.title}</span>
-        <span style={{ opacity: 0.75 }}>{currentPage + 1} / {pages.length}</span>
+      <div className="fixed top-0 left-0 right-0 z-50 bg-black/70 backdrop-blur-md px-4 py-2 flex items-center justify-between text-white text-sm">
+        <span className="font-bold tracking-[0.3px]">{chapter.title}</span>
+        <span className="opacity-75">
+          {currentPage + 1} / {pages.length}
+        </span>
       </div>
 
       {/* Page viewer */}
-      <div style={{
-        flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center',
-        paddingTop: 44, paddingBottom: 4, position: 'relative', overflow: 'hidden',
-      }}>
-        {/* Left tap zone → prev page */}
-        <div onClick={goPrev} style={{
-          position: 'absolute', left: 0, top: 44, bottom: 0, width: '20%',
-          cursor: currentPage > 0 ? 'pointer' : 'default', zIndex: 10,
-        }} />
+      <div className="flex-1 flex items-center justify-center pt-11 pb-1 relative overflow-hidden">
 
-        <img key={currentPage} src={page.src} alt={page.alt} style={{
-          maxWidth: '100%', maxHeight: '100%', width: 'auto', height: '100%',
-          objectFit: 'contain', display: 'block', pointerEvents: 'none',
-          animation: 'fadeIn 0.18s ease',
-        }} draggable={false} />
+        {/* LEFT HALF → Trang trước */}
+        <div
+          onClick={goPrev}
+          className={`absolute left-0 top-11 bottom-0 w-1/2 z-10 transition-colors
+      ${currentPage > 0
+              ? 'cursor-pointer active:bg-white/10'
+              : 'cursor-default'
+            }`}
+        />
 
-        {/* Right tap zone → next page */}
-        <div onClick={goNext} style={{
-          position: 'absolute', right: 0, top: 44, bottom: 0, width: '20%',
-          cursor: currentPage < pages.length - 1 ? 'pointer' : 'default', zIndex: 10,
-        }} />
+        <img
+          key={currentPage}
+          src={page.src}
+          alt={page.alt}
+          className="max-w-full max-h-full w-auto h-full object-contain block pointer-events-none animate-fadeIn"
+          draggable={false}
+        />
+
+        {/* RIGHT HALF → Trang sau */}
+        <div
+          onClick={goNext}
+          className={`absolute right-0 top-11 bottom-0 w-1/2 z-10 transition-colors
+      ${currentPage < pages.length - 1
+              ? 'cursor-pointer active:bg-white/10'
+              : 'cursor-default'
+            }`}
+        />
       </div>
 
       {/* Bottom progress bar */}
-      <div style={{ height: 3, background: 'rgba(255,255,255,0.1)', flexShrink: 0 }}>
-        <div style={{
-          height: '100%', background: '#1754cf',
-          width: `${((currentPage + 1) / pages.length) * 100}%`,
-          transition: 'width 0.3s ease',
-        }} />
+      <div className="h-0.75 bg-white/10 shrink-0">
+        <div
+          className="h-full bg-[#1754cf] transition-[width] duration-300"
+          style={{
+            width: `${((currentPage + 1) / pages.length) * 100}%`,
+          }}
+        />
       </div>
 
       {/* Dot indicators */}
-      <div style={{
-        display: 'flex', justifyContent: 'center', gap: 6,
-        padding: '10px 16px', background: 'rgba(0,0,0,0.6)',
-        flexShrink: 0, flexWrap: 'nowrap', overflowX: 'auto',
-      }}>
+      <div className="flex justify-center gap-1.5 px-4 py-2.5 bg-black/60 shrink-0 flex-nowrap overflow-x-auto">
         {pages.map((_, idx) => (
-          <button key={idx} onClick={() => setCurrentPage(idx)} style={{
-            width: currentPage === idx ? 20 : 8, height: 8, borderRadius: 4,
-            background: currentPage === idx ? '#1754cf' : 'rgba(255,255,255,0.3)',
-            border: 'none', cursor: 'pointer', padding: 0,
-            transition: 'width 0.25s, background 0.25s', flexShrink: 0,
-          }} />
+          <button
+            key={idx}
+            onClick={() => setCurrentPage(idx)}
+            className={`h-2 border-none cursor-pointer transition-all shrink-0 rounded ${currentPage === idx
+              ? 'w-5 bg-[#1754cf]'
+              : 'w-2 bg-white/30'
+              }`}
+          />
         ))}
       </div>
 
@@ -335,7 +322,15 @@ const Chapter = () => {
         onJumpChapter={goToChapter}
       />
 
-      <style>{`@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }`}</style>
+      <style>{`
+        @keyframes fadeIn {
+          from { opacity: 0; }
+          to { opacity: 1; }
+        }
+        .animate-fadeIn {
+          animation: fadeIn 0.18s ease forwards;
+        }
+      `}</style>
     </div>
   );
 };
