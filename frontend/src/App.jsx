@@ -16,8 +16,10 @@ function App() {
         </Route>
 
         {/* Chapter reader — standalone, no header/footer */}
-        <Route path="/chapter/:chapterId" element={<Chapter />} />
-        <Route path="/chapter" element={<Chapter />} />
+        <Route path="/chapter/:chapterId" element={<Chapter type="chapter" />} />
+        <Route path="/chapter" element={<Chapter type="chapter" />} />
+        <Route path="/spoil/:chapterId" element={<Chapter type="spoil" />} />
+        <Route path="/spoil" element={<Chapter type="spoil" />} />
       </Routes>
     </BrowserRouter>
   );

@@ -1,16 +1,23 @@
-const modules = import.meta.glob('./chapters/*.js', { eager: true });
+const chapterModules = import.meta.glob('./chapters/*.js', { eager: true });
+const spoilModules = import.meta.glob('./spoils/*.js', { eager: true });
 
-export const chapters = Object.values(modules)
+export const chapters = Object.values(chapterModules)
     .map((m) => m.default)
     .sort((a, b) => a.id - b.id);
 
-export const getChapterById = (id) =>
-    chapters.find((c) => c.id === Number(id));
+export const spoils = Object.values(spoilModules)
+    .map((m) => m.default)
+    .sort((a, b) => a.id - b.id);
 
-export const getArcGroups = () => {
+export const getChapterById = (id, type = 'chapter') => {
+    if (type === 'spoil') return spoils.find((c) => c.id === Number(id));
+    return chapters.find((c) => c.id === Number(id));
+};
+
+export const getArcGroups = (dataSource = chapters) => {
     const map = new Map();
 
-    chapters.forEach((chap) => {
+    dataSource.forEach((chap) => {
         const key = chap.arc.id;
         if (!map.has(key)) {
             map.set(key, {
@@ -33,11 +40,20 @@ export const getArcGroups = () => {
 // localStorage helpers
 const LS_KEY = 'lookism_reading_progress';
 
-export const saveProgress = (chapterId) => {
-    localStorage.setItem(LS_KEY, String(chapterId));
+export const saveProgress = (chapterId, type = 'chapter') => {
+    localStorage.setItem(LS_KEY, JSON.stringify({ id: String(chapterId), type }));
 };
 
 export const loadProgress = () => {
     const val = localStorage.getItem(LS_KEY);
-    return val ? Number(val) : null;
+    if (!val) return null;
+    try {
+        const parsed = JSON.parse(val);
+        if (parsed && typeof parsed === 'object') {
+            return { id: Number(parsed.id), type: parsed.type || 'chapter' };
+        }
+    } catch (e) {
+        return { id: Number(val), type: 'chapter' };
+    }
+    return { id: Number(val), type: 'chapter' };
 };
