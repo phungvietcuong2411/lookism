@@ -1,11 +1,16 @@
 const chapterModules = import.meta.glob('./chapters/*.js', { eager: true });
 const spoilModules = import.meta.glob('./spoils/*.js', { eager: true });
+const englishModules = import.meta.glob('./englishs/*.js', { eager: true });
 
 export const chapters = Object.values(chapterModules)
     .map((m) => m.default)
     .sort((a, b) => a.id - b.id);
 
 export const spoils = Object.values(spoilModules)
+    .map((m) => m.default)
+    .sort((a, b) => a.id - b.id);
+
+export const englishs = Object.values(englishModules)
     .map((m) => m.default)
     .sort((a, b) => a.id - b.id);
 
