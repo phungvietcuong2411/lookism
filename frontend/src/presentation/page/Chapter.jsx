@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { chapters, spoils, getChapterById, saveProgress } from '../../data/index';
-import { List, Image as ImageIcon, ChevronRight, ChevronLeft, Home, ArrowLeftRight, ScrollText, Menu, X } from 'lucide-react';
+import { List, Image as ImageIcon, ChevronRight, ChevronLeft, Home, Menu, X } from 'lucide-react';
 
 /* ─────────────────────────────────────────────
    Reusable overlay panel
@@ -22,7 +22,7 @@ const OverlayPanel = ({ title, onClose, children }) => (
 );
 
 /* ─────────────────────────────────────────────
-   FAB Item  ←←← PHẦN ĐÃ SỬA
+   FAB Item
 ───────────────────────────────────────────── */
 const FabItem = ({ label, icon: Icon, visible, delay, onClick, color }) => (
   <div
@@ -49,47 +49,18 @@ const FabItem = ({ label, icon: Icon, visible, delay, onClick, color }) => (
 );
 
 /* ─────────────────────────────────────────────
-   FAB + all panels
+   FAB + all panels (chỉ còn gạt ngang)
 ───────────────────────────────────────────── */
-const FAB = ({ onHome, onPrev, onNext, hasPrev, hasNext, pages, currentPage, onJumpPage, currentChapId, onJumpChapter, dataSource, readMode, onToggleMode }) => {
+const FAB = ({ onHome, onPrev, onNext, hasPrev, hasNext, pages, currentPage, onJumpPage, currentChapId, onJumpChapter, dataSource }) => {
   const [open, setOpen] = useState(false);
   const [panel, setPanel] = useState(null); // 'pages' or 'chapters'
 
   const toggle = () => setOpen((o) => !o);
   const openPanel = (p) => {
     setPanel(p);
-    setOpen(false); // Close FAB menu when opening a panel
+    setOpen(false);
   };
   const closePanel = () => setPanel(null);
-
-  // const PageListPanel = () => (
-  //   <OverlayPanel title="Danh sách ảnh" onClose={closePanel}>
-  //     <div className="flex-1 overflow-y-auto grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-2 p-4">
-  //       {pages.map((page, idx) => (
-  //         <button
-  //           key={idx}
-  //           onClick={() => { onJumpPage(idx); closePanel(); }}
-  //           className={`relative w-full aspect-[3/4] border-none rounded-md overflow-hidden cursor-pointer transition-transform active:scale-95 ${currentPage === idx ? 'ring-2 ring-[#1754cf]' : ''
-  //             }`}
-  //         >
-  //           <img
-  //             src={page.src}
-  //             alt={`Page ${idx + 1}`}
-  //             className="w-full h-full object-cover"
-  //           />
-  //           <div className="absolute inset-0 bg-black/50 flex items-center justify-center text-white font-bold text-lg opacity-0 hover:opacity-100 transition-opacity">
-  //             {idx + 1}
-  //           </div>
-  //           {currentPage === idx && (
-  //             <span className="absolute top-1 right-1 bg-[#1754cf] text-white text-[10px] px-1.5 py-0.5 rounded-full font-bold">
-  //               ĐANG XEM
-  //             </span>
-  //           )}
-  //         </button>
-  //       ))}
-  //     </div>
-  //   </OverlayPanel>
-  // );
 
   const PageListPanel = () => (
     <OverlayPanel title="Danh sách trang" onClose={closePanel}>
@@ -148,7 +119,7 @@ const FAB = ({ onHome, onPrev, onNext, hasPrev, hasNext, pages, currentPage, onJ
           );
         })}
       </div>
-    </OverlayPanel >
+    </OverlayPanel>
   );
 
   return (
@@ -156,22 +127,21 @@ const FAB = ({ onHome, onPrev, onNext, hasPrev, hasNext, pages, currentPage, onJ
       {panel === 'pages' && <PageListPanel />}
       {panel === 'chapters' && <ChapterListPanel />}
 
-      {/* FAB Container - CHỈ CÒN 1 NÚT KHI ĐÓNG */}
+      {/* FAB Container */}
       <div className="fixed bottom-7 right-6 z-200">
 
-        {/* Menu items - absolute, không chiếm chỗ khi đóng */}
+        {/* Menu items */}
         <div className={`absolute bottom-16 right-0 flex flex-col items-end gap-3 transition-all duration-300 origin-bottom-right
           ${open
             ? 'opacity-100 translate-y-0 scale-100 pointer-events-auto'
             : 'opacity-0 translate-y-8 scale-95 pointer-events-none'
           }`}
         >
-          <FabItem label={readMode === 'scroll' ? 'Chế độ gạt ngang' : 'Chế độ cuộn dọc'} icon={readMode === 'scroll' ? ArrowLeftRight : ScrollText} visible={open} delay={0} onClick={() => { onToggleMode(); setOpen(false); }} color="#f59e0b" />
-          <FabItem label="Danh sách chương" icon={List} visible={open} delay={40} onClick={() => openPanel('chapters')} color="#0e7490" />
-          <FabItem label="Danh sách ảnh" icon={ImageIcon} visible={open} delay={80} onClick={() => openPanel('pages')} color="#6c3de8" />
-          <FabItem label="Chương sau" icon={ChevronRight} visible={open && hasNext} delay={120} onClick={() => { onNext(); setOpen(false); }} color="#1754cf" />
-          <FabItem label="Chương trước" icon={ChevronLeft} visible={open && hasPrev} delay={160} onClick={() => { onPrev(); setOpen(false); }} color="#1754cf" />
-          <FabItem label="Trang chủ" icon={Home} visible={open} delay={200} onClick={() => { onHome(); setOpen(false); }} color="#0a7c59" />
+          <FabItem label="Danh sách chương" icon={List} visible={open} delay={0} onClick={() => openPanel('chapters')} color="#0e7490" />
+          <FabItem label="Danh sách ảnh" icon={ImageIcon} visible={open} delay={40} onClick={() => openPanel('pages')} color="#6c3de8" />
+          <FabItem label="Chương sau" icon={ChevronRight} visible={open && hasNext} delay={80} onClick={() => { onNext(); setOpen(false); }} color="#1754cf" />
+          <FabItem label="Chương trước" icon={ChevronLeft} visible={open && hasPrev} delay={120} onClick={() => { onPrev(); setOpen(false); }} color="#1754cf" />
+          <FabItem label="Trang chủ" icon={Home} visible={open} delay={160} onClick={() => { onHome(); setOpen(false); }} color="#0a7c59" />
         </div>
 
         {/* Main FAB button */}
@@ -187,8 +157,9 @@ const FAB = ({ onHome, onPrev, onNext, hasPrev, hasNext, pages, currentPage, onJ
     </>
   );
 };
+
 /* ─────────────────────────────────────────────
-   Main Chapter page
+   Main Chapter page (CHỈ CÒN CHẾ ĐỘ GẠT NGANG)
 ───────────────────────────────────────────── */
 const Chapter = ({ type = 'chapter' }) => {
   const { chapterId } = useParams();
@@ -208,9 +179,8 @@ const Chapter = ({ type = 'chapter' }) => {
   const dataSource = type === 'spoil' ? spoils : chapters;
 
   const [currentPage, setCurrentPage] = useState(0);
-  const [readMode, setReadMode] = useState('scroll'); // 'scroll' or 'swipe'
 
-  // Save progress to localStorage whenever chapter changes
+  // Save progress
   useEffect(() => {
     setCurrentPage(0);
     saveProgress(chapId, type);
@@ -235,18 +205,16 @@ const Chapter = ({ type = 'chapter' }) => {
   const goPrevChapter = () => navigate(`${routePrefix}/${dataSource[currentIndex - 1].id}`);
   const goToChapter = (id) => navigate(`${routePrefix}/${id}`);
 
-  /* Touch / swipe */
+  /* Touch swipe (luôn bật) */
   const touchStartX = useRef(null);
   const touchStartY = useRef(null);
 
   const handleTouchStart = (e) => {
-    if (readMode !== 'swipe') return;
     touchStartX.current = e.touches[0].clientX;
     touchStartY.current = e.touches[0].clientY;
   };
 
   const handleTouchEnd = (e) => {
-    if (readMode !== 'swipe') return;
     if (touchStartX.current === null) return;
     const dx = e.changedTouches[0].clientX - touchStartX.current;
     const dy = e.changedTouches[0].clientY - touchStartY.current;
@@ -258,16 +226,15 @@ const Chapter = ({ type = 'chapter' }) => {
     touchStartY.current = null;
   };
 
-  /* Keyboard */
+  /* Keyboard (luôn bật) */
   useEffect(() => {
     const handler = (e) => {
-      if (readMode !== 'swipe') return;
       if (e.key === 'ArrowRight') goNext();
       if (e.key === 'ArrowLeft') goPrev();
     };
     window.addEventListener('keydown', handler);
     return () => window.removeEventListener('keydown', handler);
-  }, [goNext, goPrev, readMode]);
+  }, [goNext, goPrev]);
 
   const page = pages[currentPage] || pages[0];
 
@@ -281,90 +248,55 @@ const Chapter = ({ type = 'chapter' }) => {
       <div className="sticky top-0 left-0 right-0 z-50 bg-black/70 backdrop-blur-md px-4 py-2 flex items-center justify-between text-white text-sm">
         <span className="font-bold tracking-[0.3px]">{chapter.title}</span>
         <span className="opacity-75">
-          {readMode === 'swipe' ? `${currentPage + 1} / ${pages.length}` : `${pages.length} trang`}
+          {`${currentPage + 1} / ${pages.length}`}
         </span>
       </div>
 
-      {readMode === 'swipe' ? (
-        <>
-          {/* Page viewer */}
-          <div className="flex-1 flex items-center justify-center pt-11 pb-1 relative overflow-hidden">
+      {/* Page viewer - CHẾ ĐỘ GẠT NGANG DUY NHẤT */}
+      <div className="flex-1 flex items-center justify-center pt-0 pb-1 relative overflow-hidden">
 
-            {/* LEFT HALF → Trang trước */}
-            <div
-              onClick={goPrev}
-              className={`absolute left-0 top-11 bottom-0 w-1/2 z-10 transition-colors
-          ${currentPage > 0
-                  ? 'cursor-pointer active:bg-white/10'
-                  : 'cursor-default'
-                }`}
-            />
+        {/* LEFT HALF → Trang trước */}
+        <div
+          onClick={goPrev}
+          className={`absolute left-0 top-0 bottom-0 w-1/2 z-10 transition-colors
+            ${currentPage > 0
+              ? 'cursor-pointer active:bg-white/10'
+              : 'cursor-default'
+            }`}
+        />
 
-            <img
-              key={currentPage}
-              src={page.src}
-              alt={page.alt}
-              className="max-w-full max-h-full w-auto h-full object-contain block pointer-events-none animate-fadeIn"
-              draggable={false}
-            />
+        <img
+          key={currentPage}
+          src={page.src}
+          alt={page.alt}
+          className="max-w-full max-h-full w-auto h-full object-contain block pointer-events-none animate-fadeIn"
+          draggable={false}
+        />
 
-            {/* RIGHT HALF → Trang sau */}
-            <div
-              onClick={goNext}
-              className={`absolute right-0 top-11 bottom-0 w-1/2 z-10 transition-colors
-          ${currentPage < pages.length - 1
-                  ? 'cursor-pointer active:bg-white/10'
-                  : 'cursor-default'
-                }`}
-            />
-          </div>
+        {/* RIGHT HALF → Trang sau */}
+        <div
+          onClick={goNext}
+          className={`absolute right-0 top-0 bottom-0 w-1/2 z-10 transition-colors
+            ${currentPage < pages.length - 1
+              ? 'cursor-pointer active:bg-white/10'
+              : 'cursor-default'
+            }`}
+        />
+      </div>
 
-          {/* Bottom progress bar */}
-          <div className="h-0.75 bg-white/10 shrink-0">
-            <div
-              className="h-full bg-[#1754cf] transition-[width] duration-300"
-              style={{
-                width: `${((currentPage + 1) / pages.length) * 100}%`,
-              }}
-            />
-          </div>
+      {/* Bottom progress bar */}
+      <div className="h-0.75 bg-white/10 shrink-0">
+        <div
+          className="h-full bg-[#1754cf] transition-[width] duration-300"
+          style={{
+            width: `${((currentPage + 1) / pages.length) * 100}%`,
+          }}
+        />
+      </div>
 
-          {/* Dot indicators */}
-          <div className="flex justify-center gap-1.5 px-4 py-2.5 bg-black/60 shrink-0 flex-nowrap overflow-x-auto">
-            {pages.map((_, idx) => (
-              <button
-                key={idx}
-                onClick={() => setCurrentPage(idx)}
-                className={`h-2 border-none cursor-pointer transition-all shrink-0 rounded ${currentPage === idx
-                  ? 'w-5 bg-[#1754cf]'
-                  : 'w-2 bg-white/30'
-                  }`}
-              />
-            ))}
-          </div>
-        </>
-      ) : (
-        /* Scroll viewer */
-        <div className="flex-1 overflow-y-auto w-full bg-[#111] pt-11 ">
-          <div className="flex flex-col items-center w-full max-w-3xl mx-auto">
-            {pages.map((p, idx) => (
-              <img
-                key={idx}
-                src={p.src}
-                alt={p.alt || `Trang ${idx + 1}`}
-                className="w-full md:1/3 h-auto block m-0 p-0"
-                loading="lazy"
-              />
-            ))}
-          </div>
-          <div className="flex flex-col sm:flex-row justify-center gap-4 py-8 mb-10 w-full max-w-3xl mx-auto px-4 mt-4">
-            <button onClick={goPrevChapter} disabled={!hasPrev} className={`flex-1 py-3.5 rounded-lg font-bold transition-colors ${hasPrev ? 'bg-white/10 text-white hover:bg-white/20 active:bg-white/30' : 'bg-transparent text-white/20 border border-white/10'}`}>Chương trước</button>
-            <button onClick={goNextChapter} disabled={!hasNext} className={`flex-1 py-3.5 rounded-lg font-bold transition-colors ${hasNext ? 'bg-[#1754cf] text-white hover:bg-blue-600 active:bg-blue-700' : 'bg-transparent text-white/20 border border-white/10'}`}>Chương sau</button>
-          </div>
-        </div>
-      )}
+      {/* Dot indicators */}
 
-      {/* FAB */}
+      {/* FAB (không còn nút chuyển chế độ) */}
       <FAB
         onHome={goHome}
         onPrev={goPrevChapter}
@@ -377,8 +309,6 @@ const Chapter = ({ type = 'chapter' }) => {
         currentChapId={chapId}
         onJumpChapter={goToChapter}
         dataSource={dataSource}
-        readMode={readMode}
-        onToggleMode={() => setReadMode(m => m === 'scroll' ? 'swipe' : 'scroll')}
       />
 
       <style>{`
